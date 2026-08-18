@@ -1,0 +1,226 @@
+{
+  "users": [
+    {
+      "id": "user_demo",
+      "username": "Alex Harmony",
+      "email": "alex@harmonix.com",
+      "password": "demo",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "createdAt": "2026-08-18T15:00:00.000000"
+    },
+    {
+      "id": "user_google_1787068822279",
+      "username": "Om",
+      "email": "om@gmail.com",
+      "isGoogleUser": true,
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=om@gmail.com",
+      "createdAt": "2026-08-18T21:30:22.279662"
+    },
+    {
+      "id": "user_google_1787068822423",
+      "username": "Friend",
+      "email": "friend@gmail.com",
+      "isGoogleUser": true,
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=friend@gmail.com",
+      "createdAt": "2026-08-18T21:30:22.423514"
+    },
+    {
+      "id": "user_google_1787069099727",
+      "username": "Google User",
+      "email": "user@gmail.com",
+      "isGoogleUser": true,
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=user@gmail.com",
+      "createdAt": "2026-08-18T21:34:59.727285"
+    },
+    {
+      "id": "user_google_1787069126376",
+      "username": "OMSHAHU270",
+      "email": "omshahu270@gmail.com",
+      "isGoogleUser": true,
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=omshahu270@gmail.com",
+      "createdAt": "2026-08-18T21:35:26.376811"
+    }
+  ],
+  "songs": [
+    {
+      "id": "song_up_1787069236",
+      "userId": "user_google_1787068822279",
+      "title": "personal",
+      "artist": "om",
+      "album": "",
+      "genre": "",
+      "duration": 180,
+      "audioUrl": "/api/songs/stream/song_up_1787069236",
+      "coverUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80",
+      "lyrics": "",
+      "createdAt": "2026-08-18T21:37:17.004446"
+    },
+    {
+      "id": "yt_BddP6PYo2gs",
+      "ytId": "BddP6PYo2gs",
+      "title": "Kesariya",
+      "artist": "Arijit Singh, Pritam",
+      "artistId": "art_arijit",
+      "album": "Brahm\u0101stra",
+      "albumId": "alb_brahmastra",
+      "language": "Hindi",
+      "genre": "Bollywood Romantic",
+      "duration": 268,
+      "audioUrl": "/api/songs/stream/yt/BddP6PYo2gs",
+      "coverUrl": "https://i.ytimg.com/vi/BddP6PYo2gs/hqdefault.jpg",
+      "lyrics": "[00:02.00] Mujhko kitna pyaar hai tumse...\n[00:10.00] Kesariya tera ishq hai piya...\n[00:20.00] Rang jaaun jo main haath lagaun...",
+      "isYouTube": true
+    },
+    {
+      "id": "yt_W-TE_Ys4iwM",
+      "ytId": "W-TE_Ys4iwM",
+      "title": "Tum Hi Ho",
+      "artist": "Arijit Singh, Mithoon",
+      "artistId": "art_arijit",
+      "album": "Aashiqui 2",
+      "albumId": "alb_aashiqui2",
+      "language": "Hindi",
+      "genre": "Bollywood Soulful",
+      "duration": 262,
+      "audioUrl": "/api/songs/stream/yt/W-TE_Ys4iwM",
+      "coverUrl": "https://i.ytimg.com/vi/W-TE_Ys4iwM/hqdefault.jpg",
+      "lyrics": "[00:02.00] Hum tere bin ab reh nahi sakte...\n[00:12.00] Tere bina kya wajood mera...\n[00:22.00] Kyun ki tum hi ho, ab tum hi ho...",
+      "isYouTube": true
+    },
+    {
+      "id": "yt_VAdGW7QDJiU",
+      "ytId": "VAdGW7QDJiU",
+      "title": "Chaleya",
+      "artist": "Arijit Singh, Shilpa Rao",
+      "artistId": "art_arijit",
+      "album": "Jawan",
+      "albumId": "alb_jawan",
+      "language": "Hindi",
+      "genre": "Pop Dance",
+      "duration": 200,
+      "audioUrl": "/api/songs/stream/yt/VAdGW7QDJiU",
+      "coverUrl": "https://i.ytimg.com/vi/VAdGW7QDJiU/hqdefault.jpg",
+      "lyrics": "[00:03.00] Ishq mein dil bana hai chaleya...\n[00:12.00] Teri raahon mein, teri baahon mein...",
+      "isYouTube": true
+    },
+    {
+      "id": "yt_luhVm60Wiro",
+      "ytId": "luhVm60Wiro",
+      "title": "Zingaat",
+      "artist": "Ajay-Atul",
+      "artistId": "art_ajayatul",
+      "album": "Sairat",
+      "albumId": "alb_sairat",
+      "language": "Marathi",
+      "genre": "Folk Dance",
+      "duration": 228,
+      "audioUrl": "/api/songs/stream/yt/luhVm60Wiro",
+      "coverUrl": "https://i.ytimg.com/vi/luhVm60Wiro/hqdefault.jpg",
+      "lyrics": "[00:02.00] Usatun nighamala navin chhanda...\n[00:10.00] Zing zing zingaat! Zing zing zingaat!",
+      "isYouTube": true
+    },
+    {
+      "id": "yt_q64G51f28b4",
+      "ytId": "q64G51f28b4",
+      "title": "Apsara Aali",
+      "artist": "Ajay-Atul, Shreya Ghoshal",
+      "artistId": "art_ajayatul",
+      "album": "Natarang",
+      "albumId": "alb_natarang",
+      "language": "Marathi",
+      "genre": "Lavani Classical",
+      "duration": 290,
+      "audioUrl": "/api/songs/stream/yt/q64G51f28b4",
+      "coverUrl": "https://i.ytimg.com/vi/q64G51f28b4/hqdefault.jpg",
+      "lyrics": "[00:03.00] Aali thumkat naarat aali...\n[00:12.00] Apsara aali indrapuritun...",
+      "isYouTube": true
+    },
+    {
+      "id": "yt_4NRXx6U8ABQ",
+      "ytId": "4NRXx6U8ABQ",
+      "title": "Blinding Lights",
+      "artist": "The Weeknd",
+      "artistId": "art_weeknd",
+      "album": "After Hours",
+      "albumId": "alb_afterhours",
+      "language": "English",
+      "genre": "Synthpop",
+      "duration": 200,
+      "audioUrl": "/api/songs/stream/yt/4NRXx6U8ABQ",
+      "coverUrl": "https://i.ytimg.com/vi/4NRXx6U8ABQ/hqdefault.jpg",
+      "lyrics": "[00:02.00] I've been tryna call...\n[00:16.00] I said, ooh, I'm blinded by the lights...",
+      "isYouTube": true
+    },
+    {
+      "id": "yt_JGwWNGJdvx8",
+      "ytId": "JGwWNGJdvx8",
+      "title": "Shape of You",
+      "artist": "Ed Sheeran",
+      "artistId": "art_edsheeran",
+      "album": "Divide",
+      "albumId": "alb_divide",
+      "language": "English",
+      "genre": "Pop",
+      "duration": 233,
+      "audioUrl": "/api/songs/stream/yt/JGwWNGJdvx8",
+      "coverUrl": "https://i.ytimg.com/vi/JGwWNGJdvx8/hqdefault.jpg",
+      "lyrics": "[00:02.00] The club isn't the best place to find a lover...\n[00:18.00] I'm in love with the shape of you...",
+      "isYouTube": true
+    }
+  ],
+  "artists": [],
+  "albums": [],
+  "playlists": [
+    {
+      "id": "pl_liked_user_google_1787068822279",
+      "userId": "user_google_1787068822279",
+      "name": "Liked Songs",
+      "isLikedSongs": true,
+      "songIds": [],
+      "createdAt": "2026-08-18T21:30:22.279674"
+    },
+    {
+      "id": "pl_liked_user_google_1787068822423",
+      "userId": "user_google_1787068822423",
+      "name": "Liked Songs",
+      "isLikedSongs": true,
+      "songIds": [],
+      "createdAt": "2026-08-18T21:30:22.423528"
+    },
+    {
+      "id": "pl_liked_user_google_1787069099727",
+      "userId": "user_google_1787069099727",
+      "name": "Liked Songs",
+      "isLikedSongs": true,
+      "songIds": [],
+      "createdAt": "2026-08-18T21:34:59.727296"
+    },
+    {
+      "id": "pl_liked_user_google_1787069126376",
+      "userId": "user_google_1787069126376",
+      "name": "Liked Songs",
+      "isLikedSongs": true,
+      "songIds": [],
+      "createdAt": "2026-08-18T21:35:26.376821"
+    }
+  ],
+  "folders": [
+    {
+      "id": "fold_1787068822",
+      "name": "Om Private Folder",
+      "userId": "user_google_1787068822279",
+      "songIds": [],
+      "playlistIds": [],
+      "createdAt": "2026-08-18T21:30:22.471113"
+    },
+    {
+      "id": "fold_1787068822",
+      "name": "Friend Secret Gym List",
+      "userId": "user_google_1787068822423",
+      "songIds": [],
+      "playlistIds": [],
+      "createdAt": "2026-08-18T21:30:22.505516"
+    }
+  ],
+  "downloads": []
+}

@@ -1,0 +1,21 @@
+{
+  "short_name": "Harmonix",
+  "name": "Harmonix - Ad-Free Spotify Music Streamer",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=192&h=192&q=80",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=512&h=512&q=80",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#000000",
+  "theme_color": "#1DB954",
+  "display": "standalone",
+  "orientation": "portrait"
+}

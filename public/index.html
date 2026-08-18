@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harmonix - Ad-Free Spotify-like Streaming</title>
+  <meta name="description" content="Stream, organize, and manage your music completely ad-free with custom folders, lyrics, and real-time audio visualizer.">
+  <meta name="theme-color" content="#1DB954">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Harmonix">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=192&h=192&q=80">
+  <link rel="stylesheet" href="/css/styles.css">
+  <!-- Feather / Lucide Icon Set CDN for clean modern music icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- LEFT SIDEBAR (DESKTOP) -->
+    <aside class="sidebar">
+      <div class="sidebar-box">
+        <a href="#" class="brand" onclick="navigateTo('home'); return false;">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 14.41c-.2.32-.61.42-.93.23-2.55-1.56-5.76-1.91-9.54-1.05-.36.08-.72-.14-.8-.5-.08-.36.14-.72.5-.8 4.14-.94 7.71-.53 10.54 1.19.32.19.42.6.23.93zm1.48-3.3c-.25.41-.78.54-1.19.29-2.92-1.79-7.37-2.31-10.82-1.26-.46.14-.95-.12-1.09-.58-.14-.46.12-.95.58-1.09 3.96-1.2 8.87-.62 12.23 1.45.41.25.54.78.29 1.19zm.13-3.43c-3.5-2.08-9.28-2.27-12.63-1.25-.53.16-1.09-.14-1.25-.67-.16-.53.14-1.09.67-1.25 3.84-1.17 10.22-.94 14.25 1.45.48.29.64.91.35 1.39-.28.47-.9.64-1.39.33z"/></svg>
+          </div>
+          <span class="brand-text">Harmonix</span>
+          <span class="badge-adfree">Ad-Free</span>
+        </a>
+
+        <ul class="nav-list">
+          <li class="nav-item active" id="nav-home" onclick="navigateTo('home')">
+            <i data-lucide="home"></i> Home
+          </li>
+          <li class="nav-item" id="nav-search" onclick="navigateTo('search')">
+            <i data-lucide="search"></i> Search
+          </li>
+          <li class="nav-item" id="nav-library" onclick="navigateTo('library')">
+            <i data-lucide="library"></i> Your Library
+          </li>
+          <li class="nav-item" id="nav-downloads" onclick="navigateTo('downloads')">
+            <i data-lucide="arrow-down-circle"></i> Downloads
+          </li>
+        </ul>
+      </div>
+
+      <!-- LIBRARY & FOLDERS BOX -->
+      <div class="library-box">
+        <div class="library-header">
+          <div class="library-header-title" onclick="navigateTo('library')">
+            <i data-lucide="folder-heart"></i>
+            <span>Playlists & Folders</span>
+          </div>
+          <div class="library-actions">
+            <button class="icon-btn" title="Create Folder" onclick="openCreateFolderModal()"><i data-lucide="folder-plus"></i></button>
+            <button class="icon-btn" title="Create Playlist" onclick="createQuickPlaylist()"><i data-lucide="plus"></i></button>
+          </div>
+        </div>
+
+        <div class="library-scroll" id="sidebar-playlists-list">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <button class="btn-upload" onclick="openUploadModal()">
+          <i data-lucide="upload-cloud"></i> Upload Track
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="main-wrapper">
+      <!-- TOP NAVBAR -->
+      <header class="top-navbar">
+        <div class="nav-history-btns">
+          <button class="circle-btn" onclick="historyBack()"><i data-lucide="chevron-left"></i></button>
+          <button class="circle-btn" onclick="historyForward()"><i data-lucide="chevron-right"></i></button>
+        </div>
+
+        <div class="search-bar-wrap" id="header-search-wrap" style="display: none;">
+          <i data-lucide="search"></i>
+          <input type="text" class="search-input" id="search-input" placeholder="What song do you want to listen to?" oninput="handleSearchInput(this.value)">
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button onclick="openGoogleAuthModal()" style="background: #fff; color: #000; border: none; font-weight: 700; font-size: 0.85rem; padding: 7px 14px; border-radius: 9999px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg> Google Login
+          </button>
+
+          <div class="user-profile-btn" onclick="openAuthModal()">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="User" class="user-avatar" id="user-avatar-img">
+            <span class="user-name" id="user-display-name">Alex Harmony</span>
+            <i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- DYNAMIC CONTENT VIEW PANE -->
+      <div class="content-pane" id="content-view">
+        <!-- Rendered dynamically (Home, Search, Library, Playlist, Artist, Album, Downloads) -->
+      </div>
+    </main>
+
+    <!-- PERSISTENT PLAYER BAR -->
+    <footer class="player-bar" id="player-bar">
+      <!-- Track Info (Left) -->
+      <div class="player-left">
+        <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80" alt="Cover" class="now-playing-cover" id="np-cover">
+        <div class="now-playing-info">
+          <div class="now-playing-title" id="np-title">Select a track</div>
+          <div class="now-playing-artist" id="np-artist">Harmonix Streaming</div>
+        </div>
+        <button class="like-btn" id="np-like-btn" onclick="toggleCurrentTrackLike()" title="Like Track">
+          <i data-lucide="heart"></i>
+        </button>
+      </div>
+
+      <!-- Controls & Progress (Center) -->
+      <div class="player-center">
+        <div class="player-controls">
+          <button class="ctrl-btn" id="btn-shuffle" onclick="toggleShuffle()" title="Shuffle Mode"><i data-lucide="shuffle"></i></button>
+          <button class="ctrl-btn" onclick="prevTrack()" title="Previous Track"><i data-lucide="skip-back"></i></button>
+          <button class="btn-play-pause" id="btn-play-pause" onclick="togglePlayPause()" title="Play/Pause"><i data-lucide="play"></i></button>
+          <button class="ctrl-btn" onclick="nextTrack()" title="Next Track"><i data-lucide="skip-forward"></i></button>
+          <button class="ctrl-btn" id="btn-repeat" onclick="toggleRepeat()" title="Repeat Mode"><i data-lucide="repeat"></i></button>
+        </div>
+
+        <div class="progress-wrap">
+          <span class="time-stamp" id="curr-time">0:00</span>
+          <input type="range" class="seek-bar" id="seek-bar" min="0" max="100" value="0" oninput="handleSeek(this.value)">
+          <span class="time-stamp" id="total-time">0:00</span>
+        </div>
+      </div>
+
+      <!-- Features & Volume (Right) -->
+      <div class="player-right">
+        <!-- Web Audio Spectrum Visualizer Canvas -->
+        <canvas id="visualizer-canvas" class="visualizer-canvas" width="100" height="36" title="Real-time Audio Spectrum"></canvas>
+
+        <button class="icon-btn" id="btn-lyrics" onclick="toggleLyricsModal()" title="Synced Lyrics"><i data-lucide="mic-2"></i></button>
+        <button class="icon-btn" onclick="downloadCurrentTrack()" title="Download Track for Offline Listening"><i data-lucide="download"></i></button>
+
+        <div class="volume-wrap">
+          <button class="icon-btn" id="btn-mute" onclick="toggleMute()"><i data-lucide="volume-2"></i></button>
+          <input type="range" class="seek-bar" id="volume-bar" min="0" max="1" step="0.01" value="0.8" oninput="handleVolume(this.value)">
+        </div>
+      </div>
+    </footer>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="mobile-bottom-nav">
+      <button class="mobile-nav-item active" id="mob-nav-home" onclick="navigateTo('home')">
+        <i data-lucide="home"></i> Home
+      </button>
+      <button class="mobile-nav-item" id="mob-nav-search" onclick="navigateTo('search')">
+        <i data-lucide="search"></i> Search
+      </button>
+      <button class="mobile-nav-item" id="mob-nav-library" onclick="navigateTo('library')">
+        <i data-lucide="library"></i> Library
+      </button>
+      <button class="mobile-nav-item" id="mob-nav-downloads" onclick="navigateTo('downloads')">
+        <i data-lucide="arrow-down-circle"></i> Downloads
+      </button>
+    </nav>
+  </div>
+
+  <!-- GOOGLE LOGIN MODAL -->
+  <div class="modal-backdrop" id="google-auth-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg> Sign in with Google
+        </h3>
+        <button class="icon-btn" onclick="closeGoogleAuthModal()"><i data-lucide="x"></i></button>
+      </div>
+
+      <p style="color: var(--text-sub); font-size: 0.88rem;">Select a Google account to access your personal isolated music library and folders:</p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div onclick="executeGoogleLogin('om@gmail.com', 'Om Sharma')" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=om@gmail.com" style="width: 36px; height: 36px; border-radius: 50%;">
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem;">Om Sharma</div>
+            <div style="font-size: 0.78rem; color: var(--text-sub);">om@gmail.com</div>
+          </div>
+        </div>
+
+        <div onclick="executeGoogleLogin('user@gmail.com', 'Google User')" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=user@gmail.com" style="width: 36px; height: 36px; border-radius: 50%;">
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem;">Google Account</div>
+            <div style="font-size: 0.78rem; color: var(--text-sub);">user@gmail.com</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+        <label class="form-label">Or Login with any Gmail Account:</label>
+        <div style="display: flex; gap: 8px; margin-top: 6px;">
+          <input type="email" class="form-input" id="custom-google-email" placeholder="your.name@gmail.com" style="flex: 1;">
+          <button class="btn-primary" onclick="submitCustomGoogleLogin()">Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD TRACK MODAL -->
+  <div class="modal-backdrop" id="upload-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Upload Ad-Free Track</h3>
+        <button class="icon-btn" onclick="closeUploadModal()"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="upload-form" onsubmit="handleTrackUpload(event)" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="form-group">
+          <label class="form-label">Track Title *</label>
+          <input type="text" class="form-input" id="upload-title" required placeholder="e.g. Midnight Echoes">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Artist Name *</label>
+          <input type="text" class="form-input" id="upload-artist" required placeholder="e.g. Luna Drift">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Album Name</label>
+          <input type="text" class="form-input" id="upload-album" placeholder="e.g. Cosmic Coffee">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Genre</label>
+          <input type="text" class="form-input" id="upload-genre" placeholder="e.g. Lo-Fi, Synthwave, Electronic">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Audio File (.mp3, .wav) *</label>
+          <input type="file" class="form-input" id="upload-audio" accept="audio/*" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cover Artwork Image</label>
+          <input type="file" class="form-input" id="upload-cover" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lyrics (Timed LRC or plain text)</label>
+          <textarea class="form-textarea" id="upload-lyrics" rows="3" placeholder="[00:05.00] Lyrics line 1..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 8px;">Upload & Publish Track</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CREATE FOLDER MODAL -->
+  <div class="modal-backdrop" id="folder-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Custom Folder</h3>
+        <button class="icon-btn" onclick="closeCreateFolderModal()"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Folder Name</label>
+        <input type="text" class="form-input" id="folder-name-input" placeholder="e.g. Workout Beats & Synth">
+      </div>
+
+      <button type="button" class="btn-primary" onclick="submitCreateFolder()">Create Folder</button>
+    </div>
+  </div>
+
+  <!-- AUTH / USER ACCOUNT MODAL -->
+  <div class="modal-backdrop" id="auth-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="auth-modal-title">User Account & Multi-User Switch</h3>
+        <button class="icon-btn" onclick="closeAuthModal()"><i data-lucide="x"></i></button>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <button onclick="closeAuthModal(); openGoogleAuthModal();" style="width: 100%; background: #fff; color: #000; border: none; font-weight: 700; font-size: 0.95rem; padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg> Continue with Google Account
+        </button>
+      </div>
+
+      <div style="text-align: center; color: var(--text-sub); font-size: 0.8rem; margin-bottom: 16px;">— OR —</div>
+
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="form-group" id="auth-username-wrap">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-input" id="auth-username" placeholder="Alex Harmony">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="auth-email" required placeholder="alex@harmonix.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="auth-password" required placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="btn-primary" id="auth-submit-btn">Login to Account</button>
+        <p style="font-size: 0.85rem; color: var(--text-sub); text-align: center; cursor: pointer;" onclick="toggleAuthMode()">
+          <span id="auth-toggle-text">Don't have an account? Sign Up</span>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- SYNCED LYRICS OVERLAY -->
+  <div class="lyrics-overlay" id="lyrics-overlay">
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img id="lyrics-track-cover" src="" style="width: 48px; height: 48px; border-radius: 6px; object-fit: cover;">
+        <div>
+          <h4 id="lyrics-track-title" style="font-size: 1.1rem; font-weight: 800;">Track Title</h4>
+          <p id="lyrics-track-artist" style="font-size: 0.85rem; color: var(--text-sub);">Artist Name</p>
+        </div>
+      </div>
+      <button class="circle-btn" onclick="toggleLyricsModal()"><i data-lucide="x"></i></button>
+    </div>
+
+    <div class="lyrics-container" id="lyrics-lines-wrap">
+      <div class="lyric-line active">Streaming Ad-Free on Harmonix...</div>
+    </div>
+  </div>
+
+  <!-- Core JavaScript Modules -->
+  <script src="/js/audioEngine.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

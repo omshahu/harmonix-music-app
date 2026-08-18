@@ -1,0 +1,15 @@
+# Python / Node artifacts
+__pycache__/
+*.pyc
+node_modules/
+.env
+*.log
+
+# Windows / OS junk
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Virtual Environment
+venv/
+env/

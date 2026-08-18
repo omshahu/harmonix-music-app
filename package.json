@@ -1,0 +1,15 @@
+{
+  "name": "harmonix-spotify-clone",
+  "version": "1.0.0",
+  "description": "Full-Stack Spotify-like Ad-Free Web Application",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "server": "node server/index.js",
+    "client": "npm --prefix client run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "keywords": ["spotify", "music-player", "ad-free", "streaming"],
+  "author": "Antigravity",
+  "license": "MIT"
+}
