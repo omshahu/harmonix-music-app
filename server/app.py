@@ -84,6 +84,78 @@ def send_audio_range(file_path):
 
 # --- API ROUTES ---
 
+@app.route('/api/auth/me', methods=['GET'])
+def get_current_user_profile():
+    user_id = request.args.get('userId', 'user_demo')
+    db = read_db()
+    user = next((u for u in db.get('users', []) if u['id'] == user_id), None)
+    if not user:
+        user = {
+            "id": user_id,
+            "username": user_id.replace('user_', '').replace('_', ' ').title() if '_' in user_id else "Alex Harmony",
+            "email": f"{user_id}@harmonix.com",
+            "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
+        }
+    return jsonify({'user': user})
+
+@app.route('/api/auth/google', methods=['POST'])
+def google_auth_login():
+    data = request.json or {}
+    email = data.get('email', '').strip()
+    username = data.get('username', '').strip()
+
+    if not email:
+        return jsonify({'error': 'Email required'}), 400
+
+    if not username:
+        username = email.split('@')[0].replace('.', ' ').title()
+
+    db = read_db()
+    users = db.get('users', [])
+    user = next((u for u in users if u.get('email', '').lower() == email.lower()), None)
+
+    if not user:
+        user_id = f"user_{str(uuid.uuid4())[:8]}"
+        user = {
+            "id": user_id,
+            "username": username,
+            "email": email,
+            "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+            "createdAt": datetime.now().isoformat()
+        }
+        users.append(user)
+        db['users'] = users
+        write_db(db)
+
+    return jsonify({'user': user, 'message': 'Logged in successfully'})
+
+@app.route('/api/auth/login', methods=['POST'])
+def standard_auth_login():
+    data = request.json or {}
+    email = data.get('email', '').strip()
+
+    if not email:
+        return jsonify({'error': 'Email required'}), 400
+
+    db = read_db()
+    users = db.get('users', [])
+    user = next((u for u in users if u.get('email', '').lower() == email.lower()), None)
+
+    if not user:
+        username = email.split('@')[0].replace('.', ' ').title()
+        user = {
+            "id": f"user_{str(uuid.uuid4())[:8]}",
+            "username": username,
+            "email": email,
+            "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+            "createdAt": datetime.now().isoformat()
+        }
+        users.append(user)
+        db['users'] = users
+        write_db(db)
+
+    return jsonify({'user': user, 'message': 'Logged in successfully'})
+
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({"status": "ok", "app": "Harmonix YouTube Engine", "time": datetime.now().isoformat()})

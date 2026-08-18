@@ -3,7 +3,11 @@ import json
 import uuid
 from datetime import datetime
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+    DATA_DIR = os.path.join('/tmp', 'data')
+else:
+    DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
 DB_FILE = os.path.join(DATA_DIR, 'database.json')
 
 os.makedirs(DATA_DIR, exist_ok=True)
