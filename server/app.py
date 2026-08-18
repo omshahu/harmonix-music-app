@@ -1,11 +1,19 @@
 import os
+import sys
 import re
 import json
 import yt_dlp
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory, send_file, Response
 from flask_cors import CORS
-from database import read_db, write_db
+
+# Add server directory to sys.path for Vercel Python runtime
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    from database import read_db, write_db
+except ImportError:
+    from server.database import read_db, write_db
 
 PUBLIC_DIR = os.path.join(os.path.dirname(__file__), '..', 'public')
 
