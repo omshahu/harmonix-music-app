@@ -519,9 +519,15 @@ def toggle_folder_song(folder_id):
     data = request.json or {}
     user_id = data.get('userId', 'user_demo')
     song_id = data.get('songId')
+    song_data = data.get('song')
 
     db = read_db()
     folders = db.get('folders', [])
+    songs = db.setdefault('songs', [])
+
+    if song_data and not any(s['id'] == song_id for s in songs):
+        songs.append(song_data)
+
     folder = next((f for f in folders if f['id'] == folder_id and f.get('userId') == user_id), None)
     if not folder: return jsonify({'error': 'Folder not found'}), 404
 
@@ -530,6 +536,7 @@ def toggle_folder_song(folder_id):
     else:
         folder['songIds'].append(song_id)
 
+    db['songs'] = songs
     write_db(db)
     return jsonify(folder)
 
@@ -537,9 +544,16 @@ def toggle_folder_song(folder_id):
 def toggle_like(song_id):
     data = request.json or {}
     user_id = data.get('userId', 'user_demo')
+    song_data = data.get('song')
 
     db = read_db()
-    playlists = db.get('playlists', [])
+    playlists = db.setdefault('playlists', [])
+    songs = db.setdefault('songs', [])
+
+    # If song data is passed (e.g. from YouTube search), save it to db['songs'] if not present
+    if song_data and not any(s['id'] == song_id for s in songs):
+        songs.append(song_data)
+
     liked_pl = next((p for p in playlists if p.get('isLikedSongs') and p.get('userId') == user_id), None)
 
     if not liked_pl:
@@ -557,6 +571,8 @@ def toggle_like(song_id):
     else:
         liked_pl['songIds'].append(song_id)
 
+    db['playlists'] = playlists
+    db['songs'] = songs
     write_db(db)
     return jsonify({"likedSongIds": liked_pl['songIds']})
 

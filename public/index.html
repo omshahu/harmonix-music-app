@@ -263,6 +263,32 @@
     </div>
   </div>
 
+  <!-- SELECT / CREATE FOLDER FOR SONG MODAL -->
+  <div class="modal-backdrop" id="select-folder-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Track to Folder</h3>
+        <button class="icon-btn" onclick="closeSelectFolderModal()"><i data-lucide="x"></i></button>
+      </div>
+
+      <div style="font-size: 0.9rem; color: var(--text-sub);" id="target-song-title-label">Select a folder or create a new folder:</div>
+
+      <!-- Existing Folders List -->
+      <div id="modal-folders-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto;">
+        <!-- Populated via JS -->
+      </div>
+
+      <!-- Create New Folder Section inside Modal -->
+      <div style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 6px;">
+        <label class="form-label">+ Create New Folder & Add Track</label>
+        <div style="display: flex; gap: 8px; margin-top: 6px;">
+          <input type="text" class="form-input" id="quick-folder-name" placeholder="e.g. Chill Beats, Gym Hits" style="flex: 1;">
+          <button class="btn-primary" onclick="submitCreateFolderAndAddSong()">Create & Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- AUTH / USER ACCOUNT MODAL -->
   <div class="modal-backdrop" id="auth-modal">
     <div class="modal-card">

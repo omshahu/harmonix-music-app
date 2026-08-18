@@ -176,7 +176,10 @@
       "userId": "user_google_1787068822279",
       "name": "Liked Songs",
       "isLikedSongs": true,
-      "songIds": [],
+      "songIds": [
+        "yt_WzlO79d3S8c",
+        "yt_g4wk720e5YU"
+      ],
       "createdAt": "2026-08-18T21:30:22.279674"
     },
     {

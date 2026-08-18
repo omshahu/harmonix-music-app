@@ -752,11 +752,16 @@ function playTrackList(songs) {
 
 // --- LIKE / FAVORITE ACTION (USER ISOLATED) ---
 async function toggleLikeTrack(songId) {
+  let song = allSongs.find(s => s.id === songId);
+  if (!song && window.currentSearchResults) {
+    song = window.currentSearchResults.find(s => s.id === songId);
+  }
+
   try {
     const res = await fetch(`/api/songs/like/${songId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: currentUser.id })
+      body: JSON.stringify({ userId: currentUser.id, song })
     });
     if (res.ok) {
       const data = await res.json();
@@ -937,33 +942,112 @@ async function deletePlaylistPrompt(playlistId) {
   }
 }
 
-async function addSongToFolderPrompt(songId) {
-  if (allFolders.length === 0) {
-    if (confirm('No custom folders found. Create one now?')) {
-      openCreateFolderModal();
+let currentTargetSongForFolder = null;
+
+function addSongToFolderPrompt(songId) {
+  openSelectFolderModal(songId);
+}
+
+function openSelectFolderModal(songId) {
+  currentTargetSongForFolder = songId;
+  let song = allSongs.find(s => s.id === songId);
+  if (!song && window.currentSearchResults) {
+    song = window.currentSearchResults.find(s => s.id === songId);
+  }
+
+  const titleLabel = document.getElementById('target-song-title-label');
+  if (titleLabel && song) {
+    titleLabel.textContent = `Add "${song.title}" to folder:`;
+  }
+
+  const container = document.getElementById('modal-folders-list');
+  if (container) {
+    if (allFolders.length === 0) {
+      container.innerHTML = `<p style="color: var(--text-sub); font-size: 0.85rem; padding: 8px 0;">No custom folders found. Create one below!</p>`;
+    } else {
+      let html = '';
+      allFolders.forEach(folder => {
+        const hasSong = (folder.songIds || []).includes(songId);
+        html += `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.06); border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="folder" style="color: var(--color-primary);"></i>
+              <div>
+                <div style="font-weight: 700; font-size: 0.9rem;">${escapeHtml(folder.name)}</div>
+                <div style="font-size: 0.75rem; color: var(--text-sub);">${(folder.songIds || []).length} songs</div>
+              </div>
+            </div>
+            <button class="${hasSong ? 'btn-primary' : 'btn-primary'}" style="padding: 6px 14px; font-size: 0.8rem; background: ${hasSong ? '#ef4444' : 'var(--color-primary)'}; color: ${hasSong ? '#fff' : '#000'};" onclick="addTrackToFolderDirect('${folder.id}')">
+              ${hasSong ? 'Remove' : '+ Add'}
+            </button>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
     }
+  }
+
+  const modal = document.getElementById('select-folder-modal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeSelectFolderModal() {
+  const modal = document.getElementById('select-folder-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+async function addTrackToFolderDirect(folderId) {
+  if (!currentTargetSongForFolder) return;
+  const songId = currentTargetSongForFolder;
+
+  let song = allSongs.find(s => s.id === songId);
+  if (!song && window.currentSearchResults) {
+    song = window.currentSearchResults.find(s => s.id === songId);
+  }
+
+  try {
+    const res = await fetch(`/api/folders/${folderId}/songs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ songId, userId: currentUser.id, song })
+    });
+    if (res.ok) {
+      await loadAppData();
+      openSelectFolderModal(songId);
+      if (currentView === 'folder') navigateTo('folder', { id: folderId });
+    }
+  } catch (e) {
+    console.error('Add track to folder error:', e);
+  }
+}
+
+async function submitCreateFolderAndAddSong() {
+  const input = document.getElementById('quick-folder-name');
+  const name = input ? input.value.trim() : '';
+  if (!name) {
+    alert('Please enter a folder name');
     return;
   }
 
-  const folderNames = allFolders.map((f, i) => `${i + 1}. ${f.name}`).join('\n');
-  const choice = prompt(`Select Folder Number to add track:\n${folderNames}`);
-  const index = parseInt(choice, 10) - 1;
+  try {
+    const res = await fetch('/api/folders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, userId: currentUser.id })
+    });
 
-  if (!isNaN(index) && allFolders[index]) {
-    const targetFolder = allFolders[index];
-    try {
-      const res = await fetch(`/api/folders/${targetFolder.id}/songs`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songId, userId: currentUser.id })
-      });
-      if (res.ok) {
-        alert(`Track added to folder "${targetFolder.name}"!`);
-        await loadAppData();
+    if (res.ok) {
+      const newFolder = await res.json();
+      if (input) input.value = '';
+      await loadAppData();
+
+      if (currentTargetSongForFolder) {
+        await addTrackToFolderDirect(newFolder.id);
       }
-    } catch (e) {
-      console.error('Add song to folder error:', e);
     }
+  } catch (e) {
+    console.error('Create folder and add song error:', e);
   }
 }
 
