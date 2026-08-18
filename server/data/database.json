@@ -166,6 +166,34 @@
       "coverUrl": "https://i.ytimg.com/vi/JGwWNGJdvx8/hqdefault.jpg",
       "lyrics": "[00:02.00] The club isn't the best place to find a lover...\n[00:18.00] I'm in love with the shape of you...",
       "isYouTube": true
+    },
+    {
+      "album": "YouTube Audio",
+      "artist": "Oriental Star Agencies Ltd",
+      "audioUrl": "/api/songs/stream/yt/g4wk720e5YU",
+      "coverUrl": "https://i.ytimg.com/vi/g4wk720e5YU/hqdefault.jpg",
+      "duration": 1064,
+      "genre": "Ad-Free Real Audio",
+      "id": "yt_g4wk720e5YU",
+      "isYouTube": true,
+      "language": "English",
+      "lyrics": "[00:02.00] Ustad Nusrat Fateh Ali Khan | Un Ka Andaz E Karam | OSA Complete Full Version | OSA Worldwide\n[00:10.00] 100% Real Audio Streamed Ad-Free on Harmonix",
+      "title": "Ustad Nusrat Fateh Ali Khan | Un Ka Andaz E Karam | OSA Complete Full Version | OSA Worldwide",
+      "ytId": "g4wk720e5YU"
+    },
+    {
+      "album": "YouTube Audio",
+      "artist": "Coke Studio Pakistan",
+      "audioUrl": "/api/songs/stream/yt/WzlO79d3S8c",
+      "coverUrl": "https://i.ytimg.com/vi/WzlO79d3S8c/hqdefault.jpg",
+      "duration": 776,
+      "genre": "Ad-Free Real Audio",
+      "id": "yt_WzlO79d3S8c",
+      "isYouTube": true,
+      "language": "English",
+      "lyrics": "[00:02.00] Coke Studio Season 11| Piya Ghar Aaya| Fareed Ayaz| Abu Muhammad Qawwal and Brothers\n[00:10.00] 100% Real Audio Streamed Ad-Free on Harmonix",
+      "title": "Coke Studio Season 11| Piya Ghar Aaya| Fareed Ayaz| Abu Muhammad Qawwal and Brothers",
+      "ytId": "WzlO79d3S8c"
     }
   ],
   "artists": [],
@@ -176,10 +204,7 @@
       "userId": "user_google_1787068822279",
       "name": "Liked Songs",
       "isLikedSongs": true,
-      "songIds": [
-        "yt_WzlO79d3S8c",
-        "yt_g4wk720e5YU"
-      ],
+      "songIds": [],
       "createdAt": "2026-08-18T21:30:22.279674"
     },
     {
@@ -223,6 +248,17 @@
       "songIds": [],
       "playlistIds": [],
       "createdAt": "2026-08-18T21:30:22.505516"
+    },
+    {
+      "id": "fold_1787071319",
+      "name": "qawwali",
+      "userId": "user_google_1787068822279",
+      "songIds": [
+        "yt_WzlO79d3S8c",
+        "yt_g4wk720e5YU"
+      ],
+      "playlistIds": [],
+      "createdAt": "2026-08-18T22:11:59.140754"
     }
   ],
   "downloads": []
