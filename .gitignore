@@ -5,6 +5,11 @@ node_modules/
 .env
 *.log
 
+# Heavy Media Files (Ignore downloaded audio files from git)
+server/static/songs/*.m4a
+server/static/songs/*.wav
+server/static/songs/*.mp3
+
 # Windows / OS junk
 Thumbs.db
 Desktop.ini
