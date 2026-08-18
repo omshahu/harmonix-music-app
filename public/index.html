@@ -103,13 +103,13 @@
     <!-- PERSISTENT PLAYER BAR -->
     <footer class="player-bar" id="player-bar">
       <!-- Track Info (Left) -->
-      <div class="player-left">
+      <div class="player-left" onclick="if(window.innerWidth <= 840) openMobilePlayerModal();">
         <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80" alt="Cover" class="now-playing-cover" id="np-cover">
         <div class="now-playing-info">
           <div class="now-playing-title" id="np-title">Select a track</div>
           <div class="now-playing-artist" id="np-artist">Harmonix Streaming</div>
         </div>
-        <button class="like-btn" id="np-like-btn" onclick="toggleCurrentTrackLike()" title="Like Track">
+        <button class="like-btn" id="np-like-btn" onclick="event.stopPropagation(); toggleCurrentTrackLike()" title="Like Track">
           <i data-lucide="heart"></i>
         </button>
       </div>
@@ -342,6 +342,47 @@
 
     <div class="lyrics-container" id="lyrics-lines-wrap">
       <div class="lyric-line active">Streaming Ad-Free on Harmonix...</div>
+  </div>
+
+  <!-- FULL SCREEN MOBILE PLAYER OVERLAY -->
+  <div class="mobile-player-overlay" id="mobile-player-modal">
+    <div class="mobile-player-header">
+      <button class="circle-btn" onclick="closeMobilePlayerModal()"><i data-lucide="chevron-down"></i></button>
+      <div class="mobile-player-subtitle">PLAYING FROM YOUR LIBRARY</div>
+      <button class="circle-btn" onclick="closeMobilePlayerModal(); toggleLyricsModal();"><i data-lucide="mic-2"></i></button>
+    </div>
+
+    <div class="mobile-player-artwork-wrap">
+      <img id="mob-np-cover" src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80" class="mobile-player-artwork">
+    </div>
+
+    <div class="mobile-player-track-details">
+      <div style="overflow: hidden;">
+        <h2 id="mob-np-title" class="mobile-player-title">Select a track</h2>
+        <p id="mob-np-artist" class="mobile-player-artist">Harmonix Streaming</p>
+      </div>
+      <button class="like-btn" onclick="toggleCurrentTrackLike()"><i data-lucide="heart"></i></button>
+    </div>
+
+    <div class="mobile-player-progress-wrap">
+      <input type="range" class="seek-bar" id="mob-seek-bar" min="0" max="100" value="0" oninput="handleSeek(this.value)">
+      <div class="mobile-player-timestamps">
+        <span id="mob-curr-time">0:00</span>
+        <span id="mob-total-time">0:00</span>
+      </div>
+    </div>
+
+    <div class="mobile-player-controls-row">
+      <button class="ctrl-btn btn-shuffle-toggle" onclick="toggleShuffle()"><i data-lucide="shuffle"></i></button>
+      <button class="ctrl-btn" onclick="prevTrack()" style="width: 48px; height: 48px;"><i data-lucide="skip-back" style="width: 28px; height: 28px;"></i></button>
+      <button class="btn-play-pause" id="mob-btn-play-pause" onclick="togglePlayPause()" style="width: 64px; height: 64px;"><i data-lucide="play" style="width: 32px; height: 32px;"></i></button>
+      <button class="ctrl-btn" onclick="nextTrack()" style="width: 48px; height: 48px;"><i data-lucide="skip-forward" style="width: 28px; height: 28px;"></i></button>
+      <button class="ctrl-btn btn-repeat-toggle" onclick="toggleRepeat()"><i data-lucide="repeat"></i></button>
+    </div>
+
+    <div class="mobile-player-footer-actions">
+      <button class="btn-upload" style="margin-top: 0; padding: 8px 16px;" onclick="downloadCurrentTrack()"><i data-lucide="download"></i> Download Track</button>
+      <button class="btn-upload" style="margin-top: 0; padding: 8px 16px;" onclick="closeMobilePlayerModal(); toggleLyricsModal();"><i data-lucide="mic-2"></i> Synced Lyrics</button>
     </div>
   </div>
 

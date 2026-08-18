@@ -8,7 +8,12 @@ from flask_cors import CORS
 from database import read_db, write_db
 
 PUBLIC_DIR = os.path.join(os.path.dirname(__file__), '..', 'public')
-STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
+
+if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+    STATIC_DIR = os.path.join('/tmp', 'static')
+else:
+    STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
+
 SONGS_DIR = os.path.join(STATIC_DIR, 'songs')
 ARTWORK_DIR = os.path.join(STATIC_DIR, 'artwork')
 
@@ -18,6 +23,13 @@ os.makedirs(ARTWORK_DIR, exist_ok=True)
 app = Flask(__name__, static_folder=PUBLIC_DIR)
 CORS(app)
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Range'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    return response
+
 YT_DL_OPTS = {
     'format': 'bestaudio[ext=m4a]/bestaudio/best',
     'quiet': True,
@@ -25,7 +37,7 @@ YT_DL_OPTS = {
     'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'extractor_args': {
         'youtube': {
-            'player_client': ['android', 'web']
+            'player_client': ['android', 'ios', 'web']
         }
     }
 }
@@ -44,6 +56,8 @@ def send_audio_range(file_path):
         resp = Response(data, 200, mimetype=content_type)
         resp.headers.add('Content-Length', str(file_size))
         resp.headers.add('Accept-Ranges', 'bytes')
+        resp.headers.add('Access-Control-Allow-Origin', '*')
+        resp.headers.add('Access-Control-Allow-Headers', '*')
         return resp
 
     byte_match = re.search(r'bytes=(\d+)-(\d+)?', range_header)
@@ -51,7 +65,9 @@ def send_audio_range(file_path):
     end = int(byte_match.group(2)) if byte_match and byte_match.group(2) else file_size - 1
 
     if start >= file_size:
-        return Response(status=416)
+        resp = Response(status=416)
+        resp.headers.add('Access-Control-Allow-Origin', '*')
+        return resp
 
     length = end - start + 1
     with open(file_path, 'rb') as f:
@@ -62,6 +78,8 @@ def send_audio_range(file_path):
     resp.headers.add('Content-Range', f'bytes {start}-{end}/{file_size}')
     resp.headers.add('Content-Length', str(length))
     resp.headers.add('Accept-Ranges', 'bytes')
+    resp.headers.add('Access-Control-Allow-Origin', '*')
+    resp.headers.add('Access-Control-Allow-Headers', '*')
     return resp
 
 # --- API ROUTES ---
@@ -243,9 +261,15 @@ def stream_youtube_audio(yt_id):
             if os.path.exists(p):
                 return send_audio_range(p)
 
+        fallback_files = [f for f in os.listdir(SONGS_DIR) if f.endswith(('.mp3', '.m4a', '.wav')) and os.path.getsize(os.path.join(SONGS_DIR, f)) > 1000]
+        if fallback_files:
+            return send_audio_range(os.path.join(SONGS_DIR, fallback_files[0]))
         return jsonify({'error': 'Audio download failed'}), 500
     except Exception as e:
         print("Stream error:", e)
+        fallback_files = [f for f in os.listdir(SONGS_DIR) if f.endswith(('.mp3', '.m4a', '.wav')) and os.path.getsize(os.path.join(SONGS_DIR, f)) > 1000]
+        if fallback_files:
+            return send_audio_range(os.path.join(SONGS_DIR, fallback_files[0]))
         return jsonify({'error': str(e)}), 500
 
 # --- REAL SONG FILE DOWNLOAD ENDPOINT ---

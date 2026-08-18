@@ -1,0 +1,11 @@
+server/static/songs/*.m4a
+server/static/songs/*.wav
+server/static/songs/*.mp3
+server/static/songs/yt_*
+server/static/artwork/*
+.git
+__pycache__/
+*.pyc
+node_modules/
+.env
+*.log

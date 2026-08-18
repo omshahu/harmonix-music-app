@@ -1,12 +1,12 @@
 /* ==========================================================================
    HARMONIX AUDIO ENGINE & WEB AUDIO API SPECTRUM VISUALIZER
+   (OPTIMIZED FOR MOBILE PHONES, DESKTOPS & BACKGROUND PLAYBACK)
    ========================================================================== */
 
 class AudioEngine {
   constructor() {
     this.audio = new Audio();
-    this.audio.crossOrigin = "anonymous";
-
+    // Do NOT set crossOrigin = "anonymous" unconditionally as iOS Safari mutes audio on CORS mismatches
     this.currentTrack = null;
     this.queue = [];
     this.queueIndex = 0;
@@ -16,6 +16,7 @@ class AudioEngine {
     this.repeatMode = 0; // 0 = off, 1 = repeat playlist, 2 = repeat track
     this.isMuted = false;
     this.previousVolume = 0.8;
+    this.unlocked = false;
 
     // Web Audio API Context & Analyser Node for Visualizer Canvas
     this.audioCtx = null;
@@ -26,6 +27,7 @@ class AudioEngine {
     this.canvasCtx = null;
 
     this.setupListeners();
+    this.setupMobileGestureUnlock();
   }
 
   setupListeners() {
@@ -46,16 +48,59 @@ class AudioEngine {
       this.isPlaying = false;
       this.updatePlayPauseUI();
     });
+
+    this.audio.addEventListener('error', (e) => {
+      console.warn('Audio playback error event:', e);
+      this.isPlaying = false;
+      this.updatePlayPauseUI();
+    });
+  }
+
+  setupMobileGestureUnlock() {
+    const unlockHandler = () => {
+      this.unlockAudioContext();
+      window.removeEventListener('touchstart', unlockHandler);
+      window.removeEventListener('click', unlockHandler);
+      window.removeEventListener('pointerdown', unlockHandler);
+    };
+
+    window.addEventListener('touchstart', unlockHandler, { passive: true });
+    window.addEventListener('click', unlockHandler, { passive: true });
+    window.addEventListener('pointerdown', unlockHandler, { passive: true });
+  }
+
+  unlockAudioContext() {
+    if (this.unlocked) return;
+    try {
+      if (!this.audioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) this.audioCtx = new AudioCtx();
+      }
+      if (this.audioCtx && this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      this.unlocked = true;
+    } catch (e) {
+      console.warn('AudioContext unlock notice:', e);
+    }
   }
 
   initVisualizer() {
-    if (this.audioCtx) return;
+    // Only initialize visualizer on larger screens where visualizer canvas is visible
+    if (window.innerWidth <= 840) return;
+    if (this.audioCtx && this.source) return;
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.audioCtx = new AudioCtx();
+      if (!this.audioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        this.audioCtx = new AudioCtx();
+      }
+
       this.analyser = this.audioCtx.createAnalyser();
       this.analyser.fftSize = 64;
 
+      // Enable crossOrigin safely for Web Audio node connection if supported
+      this.audio.crossOrigin = "anonymous";
       this.source = this.audioCtx.createMediaElementSource(this.audio);
       this.source.connect(this.analyser);
       this.analyser.connect(this.audioCtx.destination);
@@ -69,7 +114,7 @@ class AudioEngine {
         this.drawSpectrum();
       }
     } catch (e) {
-      console.warn('Web Audio API spectrum visualizer notice:', e.message);
+      console.warn('Spectrum visualizer fallback:', e.message);
     }
   }
 
@@ -104,11 +149,7 @@ class AudioEngine {
   playTrack(track, queue = null) {
     if (!track) return;
 
-    if (!this.audioCtx) {
-      this.initVisualizer();
-    } else if (this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume();
-    }
+    this.unlockAudioContext();
 
     if (queue && queue.length > 0) {
       this.queue = queue;
@@ -123,14 +164,34 @@ class AudioEngine {
     }
 
     this.currentTrack = track;
-    this.audio.src = track.audioUrl || `/api/songs/stream/${track.id}`;
+    let streamUrl = track.audioUrl || `/api/songs/stream/${track.id}`;
+    if (streamUrl.startsWith('/')) {
+      streamUrl = window.location.origin + streamUrl;
+    }
+
+    this.audio.src = streamUrl;
     this.audio.load();
-    this.audio.play().catch(e => console.log('Audio play interrupted:', e));
+
+    const playPromise = this.audio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        this.isPlaying = true;
+        this.updatePlayPauseUI();
+        this.updateMediaSession(track);
+        this.initVisualizer();
+      }).catch(e => {
+        console.warn('Audio play promise blocked:', e);
+        this.isPlaying = false;
+        this.updatePlayPauseUI();
+      });
+    }
 
     this.updatePlayerUI();
   }
 
   togglePlayPause() {
+    this.unlockAudioContext();
+
     if (!this.currentTrack) {
       if (this.queue.length > 0) {
         this.playTrack(this.queue[0], this.queue);
@@ -146,7 +207,7 @@ class AudioEngine {
       if (this.audioCtx && this.audioCtx.state === 'suspended') {
         this.audioCtx.resume();
       }
-      this.audio.play();
+      this.audio.play().catch(e => console.warn('Play interrupted:', e));
     }
   }
 
@@ -179,7 +240,7 @@ class AudioEngine {
   onTrackEnded() {
     if (this.repeatMode === 2) {
       this.audio.currentTime = 0;
-      this.audio.play();
+      this.audio.play().catch(e => console.warn('Repeat play error:', e));
     } else if (this.repeatMode === 1 || this.queueIndex < this.queue.length - 1 || this.isShuffle) {
       this.nextTrack();
     } else {
@@ -213,24 +274,23 @@ class AudioEngine {
 
   toggleShuffle() {
     this.isShuffle = !this.isShuffle;
-    const btn = document.getElementById('btn-shuffle');
-    if (btn) {
+    document.querySelectorAll('.btn-shuffle-toggle').forEach(btn => {
       btn.classList.toggle('active', this.isShuffle);
-    }
+    });
+    const btn = document.getElementById('btn-shuffle');
+    if (btn) btn.classList.toggle('active', this.isShuffle);
   }
 
   toggleRepeat() {
     this.repeatMode = (this.repeatMode + 1) % 3;
+    const btns = document.querySelectorAll('.btn-repeat-toggle');
+    btns.forEach(btn => {
+      btn.classList.toggle('active', this.repeatMode > 0);
+      btn.setAttribute('title', this.repeatMode === 2 ? 'Repeat Track' : (this.repeatMode === 1 ? 'Repeat Playlist' : 'Repeat Off'));
+    });
     const btn = document.getElementById('btn-repeat');
     if (btn) {
       btn.classList.toggle('active', this.repeatMode > 0);
-      if (this.repeatMode === 2) {
-        btn.setAttribute('title', 'Repeat Track');
-      } else if (this.repeatMode === 1) {
-        btn.setAttribute('title', 'Repeat Playlist');
-      } else {
-        btn.setAttribute('title', 'Repeat Off');
-      }
     }
   }
 
@@ -242,11 +302,22 @@ class AudioEngine {
     const totalEl = document.getElementById('total-time');
     const seekBar = document.getElementById('seek-bar');
 
-    if (currEl) currEl.textContent = this.formatTime(currTime);
-    if (totalEl) totalEl.textContent = this.formatTime(duration);
-    if (seekBar && duration > 0) {
-      seekBar.value = (currTime / duration) * 100;
-    }
+    // Mobile player modal elements
+    const mobCurrEl = document.getElementById('mob-curr-time');
+    const mobTotalEl = document.getElementById('mob-total-time');
+    const mobSeekBar = document.getElementById('mob-seek-bar');
+
+    const formattedCurr = this.formatTime(currTime);
+    const formattedTotal = this.formatTime(duration);
+    const progressPercent = duration > 0 ? (currTime / duration) * 100 : 0;
+
+    if (currEl) currEl.textContent = formattedCurr;
+    if (totalEl) totalEl.textContent = formattedTotal;
+    if (seekBar && duration > 0) seekBar.value = progressPercent;
+
+    if (mobCurrEl) mobCurrEl.textContent = formattedCurr;
+    if (mobTotalEl) mobTotalEl.textContent = formattedTotal;
+    if (mobSeekBar && duration > 0) mobSeekBar.value = progressPercent;
 
     if (window.updateLyricsSync) {
       window.updateLyricsSync(currTime);
@@ -267,9 +338,18 @@ class AudioEngine {
     const title = document.getElementById('np-title');
     const artist = document.getElementById('np-artist');
 
+    // Mobile player overlay UI elements
+    const mobCover = document.getElementById('mob-np-cover');
+    const mobTitle = document.getElementById('mob-np-title');
+    const mobArtist = document.getElementById('mob-np-artist');
+
     if (cover) cover.src = this.currentTrack.coverUrl;
     if (title) title.textContent = this.currentTrack.title;
     if (artist) artist.textContent = this.currentTrack.artist;
+
+    if (mobCover) mobCover.src = this.currentTrack.coverUrl;
+    if (mobTitle) mobTitle.textContent = this.currentTrack.title;
+    if (mobArtist) mobArtist.textContent = this.currentTrack.artist;
 
     if (window.updateCurrentTrackLikeState) {
       window.updateCurrentTrackLikeState(this.currentTrack.id);
@@ -277,11 +357,11 @@ class AudioEngine {
   }
 
   updatePlayPauseUI() {
-    const btn = document.getElementById('btn-play-pause');
-    if (btn) {
+    const playPauseBtns = document.querySelectorAll('.btn-play-pause, #mob-btn-play-pause');
+    playPauseBtns.forEach(btn => {
       btn.innerHTML = this.isPlaying ? `<i data-lucide="pause"></i>` : `<i data-lucide="play"></i>`;
-      if (window.lucide) lucide.createIcons();
-    }
+    });
+    if (window.lucide) lucide.createIcons();
   }
 
   updateVolumeUI() {
@@ -293,6 +373,33 @@ class AudioEngine {
       const icon = this.isMuted || this.audio.volume === 0 ? 'volume-x' : (this.audio.volume < 0.5 ? 'volume-1' : 'volume-2');
       muteBtn.innerHTML = `<i data-lucide="${icon}"></i>`;
       if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  updateMediaSession(track) {
+    if ('mediaSession' in navigator && track) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: track.title || 'Harmonix Music',
+          artist: track.artist || 'Harmonix',
+          album: track.album || 'Ad-Free Real Audio',
+          artwork: [
+            { src: track.coverUrl || '', sizes: '512x512', type: 'image/jpeg' }
+          ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => this.togglePlayPause());
+        navigator.mediaSession.setActionHandler('pause', () => this.togglePlayPause());
+        navigator.mediaSession.setActionHandler('previoustrack', () => this.prevTrack());
+        navigator.mediaSession.setActionHandler('nexttrack', () => this.nextTrack());
+        navigator.mediaSession.setActionHandler('seekto', (details) => {
+          if (details.seekTime && this.audio.duration) {
+            this.audio.currentTime = details.seekTime;
+          }
+        });
+      } catch (e) {
+        console.warn('MediaSession notice:', e);
+      }
     }
   }
 }
@@ -331,4 +438,14 @@ window.handleSeek = function(val) {
 
 window.handleVolume = function(val) {
   if (window.audioEngine) window.audioEngine.setVolume(val);
+};
+
+window.openMobilePlayerModal = function() {
+  const modal = document.getElementById('mobile-player-modal');
+  if (modal) modal.classList.add('open');
+};
+
+window.closeMobilePlayerModal = function() {
+  const modal = document.getElementById('mobile-player-modal');
+  if (modal) modal.classList.remove('open');
 };
