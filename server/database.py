@@ -9,6 +9,7 @@ else:
     DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 DB_FILE = os.path.join(DATA_DIR, 'database.json')
+SEED_DB_FILE = os.path.join(os.path.dirname(__file__), 'data', 'database.json')
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -33,6 +34,14 @@ DEFAULT_DATA = {
 
 def read_db():
     if not os.path.exists(DB_FILE):
+        if os.path.exists(SEED_DB_FILE):
+            try:
+                with open(SEED_DB_FILE, 'r', encoding='utf-8') as f:
+                    seed_data = json.load(f)
+                write_db(seed_data)
+                return seed_data
+            except Exception as e:
+                print(f"Error reading seed database: {e}")
         write_db(DEFAULT_DATA)
         return DEFAULT_DATA
     try:
